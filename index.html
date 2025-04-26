@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AHP - Pemilihan Jurusan Kuliah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg, #e0f7fa, #f1f8e9); min-height: 100vh; padding: 30px; }
+    #loader {
+      position: fixed; top: 50%; left: 50%;
+      width: 30px; height: 30px;
+      border: 4px solid #ddd; border-top: 4px solid #333;
+      border-radius: 50%; animation: spin 0.2s linear infinite;
+      transform: translate(-50%, -50%); z-index: 1001;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    #blur-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      backdrop-filter: blur(9px);
+      background-color: rgba(255, 255, 255, 0.3);
+      z-index: 1000;
+    }
+
+    #content { display: none; animation: fadeIn 0.6s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #ffffffee;
+      border-radius: 16px;
+      padding: 40px 25px;
+      margin: 0 auto 60px;
+      max-width: 720px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      animation: slideUp 0.8s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, h2 { color: #2e7d32; text-align: center; margin-bottom: 25px; }
+    p { text-align: center; color: #555; margin-bottom: 30px; line-height: 1.6; }
+    input, select {
+      width: 90%; padding: 12px; margin: 15px auto;
+      display: block; border: 1px solid #ccc; border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    button {
+      padding: 12px 24px; background-color: #43a047; color: white;
+      border: none; border-radius: 8px; cursor: pointer;
+      transition: 0.3s; display: block; margin: 25px auto 0;
+    }
+    button:hover { background-color: #2e7d32; transform: scale(1.05); }
+    .footer { text-align: center; font-size: 11px; color: #888; margin-top: 60px; }
+    .section-title { text-align: center; color: #388e3c; margin: 40px 0 20px; font-weight: 600; }
+
+    .step-container {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+      font-size: 13px; margin-top: 20px;
+    }
+    .step {
+      background-color: #e8f5e9;
+      padding: 14px 16px;
+      border-left: 5px solid #66bb6a;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: 0.3s;
+    }
+    .step:hover { background-color: #c8e6c9; }
+    .step i { color: #388e3c; margin-top: 3px; }
+    .result {
+      background-color: #e8f5e9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    a { color: #388e3c; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+
+
+</head>
+<body>
+  <div id="loader"></div>
+  <div id="blur-overlay"></div>
+  <div id="content">
+
+    <div id="homePage" class="card">
+      <h1><i class="fas fa-balance-scale"></i> AHP - Pemilihan Jurusan Kuliah</h1>
+      <p><i class="fas fa-info-circle"></i> Metode AHP membantu kamu memilih jurusan berdasarkan kriteria penting yang kamu tentukan sendiri.</p>
+      <button onclick="showLogin()"><i class="fas fa-sign-in-alt"></i> Coba Sekarang</button>
+      <h3 class="section-title">Langkah-Langkah Penggunaan:</h3>
+      <div class="step-container">
+        <div class="step"><i class="fas fa-list"></i> <span>1. Tentukan kriteria penting menurut kamu.</span></div>
+        <div class="step"><i class="fas fa-sliders-h"></i> <span>2. Bandingkan kriteria berdasarkan kepentingan.</span></div>
+        <div class="step"><i class="fas fa-book"></i> <span>3. Pilih kriteria yang sesuai pada dirimu.</span></div>
+        <div class="step"><i class="fas fa-check-circle"></i> <span>4. Lihat hasil peringkat jurusan terbaik.</span></div>
+      </div>
+      <h3 class="section-title">About Us</h3>
+      <p><i class="fas fa-users"></i> Aplikasi ini dibuat untuk bantu siswa memilih jurusan kuliah dengan pendekatan ilmiah melalui metode AHP.</p>
+    </div>
+
+    <div id="loginPage" class="card" style="display: none;">
+      <h2><i class="fas fa-user-lock"></i> Login</h2>
+      <input type="text" placeholder="Nama Lengkap" id="username">
+      <input type="password" placeholder="Kata Sandi" id="password">
+      <button onclick="showForm()"><i class="fas fa-arrow-right"></i> Masuk</button>
+      <p style="text-align: center; margin-top: 20px;">Belum punya akun? <a href="#" onclick="showSignup()">Daftar di sini</a></p>
+    </div>
+
+    <div id="signupPage" class="card" style="display: none;">
+      <h2><i class="fas fa-user-plus"></i> Sign Up</h2>
+      <input type="text" placeholder="Nama Lengkap" id="signupName">
+      <input type="email" placeholder="Email" id="signupEmail">
+      <input type="password" placeholder="Kata Sandi" id="signupPassword">
+      <button onclick="submitSignup()"><i class="fas fa-user-check"></i> Daftar</button>
+      <p style="text-align: center; margin-top: 20px;">Sudah punya akun? <a href="#" onclick="showLoginFromSignup()">Login di sini</a></p>
+    </div>
+
+    <div id="formPage" class="card" style="display: none;">
+      <h2><i class="fas fa-edit"></i> Form AHP - Pemilihan Jurusan</h2>
+      <form id="ahpForm">
+        <label>Kesukaan:</label>
+        <select id="kesukaan">
+          <option value="matematika">Matematika</option>
+          <option value="seni">Seni</option>
+          <option value="olahraga">Olahraga</option>
+          <option value="sosial">Sosial</option>
+          <option value="bahasa">Bahasa</option>
+          <option value="teknologi">Teknologi</option>
+          <option value="medis">Medis</option>
+          <option value="ekonomi">Ekonomi</option>
+          <option value="politik">Politik</option>
+          <option value="alam">Alam</option>
+        </select>
+
+        <label>Keahlian:</label>
+        <select id="keahlian">
+          <option value="komputer">Komputer</option>
+          <option value="komunikasi">Komunikasi</option>
+          <option value="bisnis">Bisnis</option>
+          <option value="desain">Desain</option>
+          <option value="kimia">Kimia</option>
+          <option value="matematika">Matematika</option>
+          <option value="logika">Logika</option>
+          <option value="organisasi">Organisasi</option>
+          <option value="penelitian">Penelitian</option>
+          <option value="kesehatan">Kesehatan</option>
+        </select>
+
+        <label>Bakat:</label>
+        <select id="bakat">
+          <option value="berpikir_kritis">Berpikir Kritis</option>
+          <option value="memimpin">Memimpin</option>
+          <option value="berkomunikasi">Berkomunikasi</option>
+          <option value="menulis">Menulis</option>
+          <option value="menggambar">Menggambar</option>
+          <option value="menganalisis">Menganalisis</option>
+          <option value="meneliti">Meneliti</option>
+          <option value="membantu">Membantu Orang</option>
+          <option value="berjualan">Berjualan</option>
+          <option value="berinovasi">Berinovasi</option>
+        </select>
+
+        <label>Hobi:</label>
+        <select id="hobi">
+          <option value="membaca">Membaca</option>
+          <option value="berolahraga">Berolahraga</option>
+          <option value="main_game">Main Game</option>
+          <option value="memasak">Memasak</option>
+          <option value="berkebun">Berkebun</option>
+          <option value="menulis">Menulis</option>
+          <option value="mendesain">Mendesain</option>
+          <option value="mengajar">Mengajar</option>
+          <option value="berdiskusi">Berdiskusi</option>
+          <option value="mendaki">Mendaki</option>
+        </select>
+        <button type="submit">Hitung Perbandingan AHP</button>
+        <button type="button" onclick="resetForm()">Reset</button>
+      </form>
+      <div id="result" class="result"></div>
+    </div>
+  </div>
+  <script>
+    window.addEventListener("load", function () {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("blur-overlay").style.display = "none";
+        document.getElementById("content").style.display = "block";
+      }, 200);
+    });
+
+    function showLogin() {
+      document.getElementById("homePage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+    }
+
+    function showSignup() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("signupPage").style.display = "block";
+    }
+
+    function showLoginFromSignup() {
+      document.getElementById("signupPage").style.display = "none";
+      document.getElementById("loginPage").style.display = "block";
+    }
+
+    function submitSignup() {
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const pass = document.getElementById("signupPassword").value;
+
+      if (name && email && pass) {
+        alert("Pendaftaran berhasil! Silakan login.");
+        showLoginFromSignup();
+      } else {
+        alert("Mohon lengkapi semua data.");
+      }
+    }
+
+    function showForm() {
+      document.getElementById("loginPage").style.display = "none";
+      document.getElementById("formPage").style.display = "block";
+    }
+
+    function resetForm() {
+      document.getElementById("ahpForm").reset();
+      document.getElementById("result").innerHTML = "";
+    }
+
+    document.getElementById('ahpForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const getVal = id => document.getElementById(id).value;
+      const get = val => bobot[val] || 1;
+      const bobot = {
+        matematika: 5, seni: 4, olahraga: 3, sosial: 3, bahasa: 4, teknologi: 5, medis: 5, ekonomi: 4, politik: 3, alam: 4,
+        komputer: 5, komunikasi: 4, bisnis: 4, desain: 4, kimia: 4, logika: 5, organisasi: 4, penelitian: 5, kesehatan: 5,
+        berpikir_kritis: 5, memimpin: 4, berkomunikasi: 4, menulis: 4, menggambar: 4, menganalisis: 5, meneliti: 5,
+        membantu: 4, berjualan: 4, berinovasi: 5, membaca: 4, berolahraga: 3, main_game: 2, memasak: 3, berkebun: 2,
+        mendesain: 4, mengajar: 4, berdiskusi: 4, mendaki: 3
+      };
+
+      const valKesukaan = getVal("kesukaan");
+const valKeahlian = getVal("keahlian");
+const valBakat = getVal("bakat");
+const valHobi = getVal("hobi");
+
+const jurusan = {
+  Kedokteran:
+    (valKesukaan === "medis" ? get("medis") : 1) * 0.4 +
+    (valKeahlian === "kesehatan" ? get("kesehatan") : 1) * 0.3 +
+    (valBakat === "membantu" ? get("membantu") : 1) * 0.3,
+
+  Teknik:
+    (valKesukaan === "teknologi" ? get("teknologi") : 1) * 0.4 +
+    (valKeahlian === "logika" ? get("logika") : 1) * 0.3 +
+    (valBakat === "berinovasi" ? get("berinovasi") : 1) * 0.3,
+
+  Ekonomi:
+    (valKesukaan === "ekonomi" ? get("ekonomi") : 1) * 0.4 +
+    (valKeahlian === "bisnis" ? get("bisnis") : 1) * 0.3 +
+    (valBakat === "berjualan" ? get("berjualan") : 1) * 0.3,
+
+  Komunikasi:
+    (valKesukaan === "sosial" ? get("sosial") : 1) * 0.4 +
+    (valKeahlian === "komunikasi" ? get("komunikasi") : 1) * 0.3 +
+    (valBakat === "berkomunikasi" ? get("berkomunikasi") : 1) * 0.3,
+
+  Hukum:
+    (valKesukaan === "politik" ? get("politik") : 1) * 0.4 +
+    (valKeahlian === "organisasi" ? get("organisasi") : 1) * 0.3 +
+    (valBakat === "berpikir_kritis" ? get("berpikir_kritis") : 1) * 0.3,
+
+  Psikologi:
+    (valKesukaan === "sosial" ? get("sosial") : 1) * 0.4 +
+    (valKeahlian === "penelitian" ? get("penelitian") : 1) * 0.3 +
+    (valBakat === "meneliti" ? get("meneliti") : 1) * 0.3,
+
+  Desain:
+    (valKesukaan === "seni" ? get("seni") : 1) * 0.4 +
+    (valKeahlian === "desain" ? get("desain") : 1) * 0.3 +
+    (valBakat === "menggambar" ? get("menggambar") : 1) * 0.3,
+
+  Pendidikan:
+    (valKesukaan === "bahasa" ? get("bahasa") : 1) * 0.4 +
+    (valKeahlian === "komunikasi" ? get("komunikasi") : 1) * 0.3 +
+    (valBakat === "mengajar" ? get("mengajar") : 1) * 0.3,
+
+  Pariwisata:
+    (valKesukaan === "sosial" ? get("sosial") : 1) * 0.4 +
+    (valHobi === "memasak" ? get("memasak") : 1) * 0.3 +
+    (valBakat === "berkomunikasi" ? get("berkomunikasi") : 1) * 0.3,
+
+  Agribisnis:
+    (valKesukaan === "alam" ? get("alam") : 1) * 0.4 +
+    (valKeahlian === "bisnis" ? get("bisnis") : 1) * 0.3 +
+    (valHobi === "berkebun" ? get("berkebun") : 1) * 0.3
+};
+
+      const hasil = Object.entries(jurusan)
+        .sort((a, b) => b[1] - a[1])
+        .map(([nama, skor], i) => `<li>${i + 1}. ${nama} (Skor: ${skor.toFixed(2)})</li>`).join("");
+      document.getElementById("result").innerHTML = `<p>Berdasarkan kriteria yang kamu pilih, Skor tertinggi merupakan Rekomendasi jurusanmu :</p><ul>${hasil}</ul>`;
+    });
+  </script>
+  <div class="footer">&copy; 2025 - 2026 | Savio Septya Kusuma 202302011001 | Semua Hak Cipta Dilindungi | Mahasiswa UHW Perbanas Surabaya</div>
+</body>
+</html>
